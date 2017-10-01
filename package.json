@@ -1,7 +1,7 @@
 {
-  "name": "pinkmoderator",
+  "name": "pinktracker",
   "version": "1.0.0",
-  "description": "A auto text chanel moderator",
+  "description": "A stats tracker",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./index.js --config ./nodemon.json",
