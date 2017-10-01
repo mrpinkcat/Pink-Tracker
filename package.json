@@ -1,0 +1,19 @@
+{
+  "name": "pinkmoderator",
+  "version": "1.0.0",
+  "description": "A auto text chanel moderator",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./index.js --config ./nodemon.json",
+    "start": "node index"
+  },
+  "author": "Mr. Pink",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.2.1",
+    "express": "^4.15.4",
+    "http": "0.0.0",
+    "node-json-db": "^0.7.3",
+    "socket.io": "^2.0.3"
+  }
+}
