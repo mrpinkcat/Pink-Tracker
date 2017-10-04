@@ -86,12 +86,13 @@ function calcStat(info) {
 
 function addMessageToStat(userID, chanelID) {
   db.push(`/${userID}/message/${chanelID}`, additionDb(`/${userID}/message/${chanelID}`, 1));
-  db.push(`/${userID}/message/${chanelID}`, additionDb(`/${userID}/message/${chanelID}`, getTotalMessage(userID)));
+  db.push(`/${userID}/message/all`, getTotalMessage(userID));
 }
 
 function getTotalMessage(userID) {
   let totalMessages = 0;
-  for (let [index, value] of Object.entries(db.getData(`${userID}/message`))) {
+  for (let [index, value] of Object.entries(db.getData(`/${userID}/message`))) {
+    if (index !== 'all')
     totalMessages = totalMessages + value;
   }
   return totalMessages;
@@ -130,7 +131,7 @@ bot.on('message', message => {
     console.log(`La réponse du bot serra supprimé dans ${deleteTimeout}s`);
     setTimeout(function () {
       message.delete();
-      console.log('Réponse du bot SUPPRIMÉ');
+      console.log('Réponse du bot SUPPRIMÉE');
     }, deleteTimeout * 1000);
   }
 });
