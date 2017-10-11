@@ -98,6 +98,14 @@ function getTotalMessage(userID) {
   return totalMessages;
 }
 
+function getGame(guildMember) {
+  console.log(`log : ${guildMember.user.username}`);
+  if (!guildMember.presence.game)
+    return null;
+  else
+    return guildMember.presence.game.name;
+}
+
 var guild;
 
 if (botPrefix.length !== 1) {
@@ -105,10 +113,14 @@ if (botPrefix.length !== 1) {
   process.exit();
 }
 
-bot.on('ready', () => {
+bot.on('ready', () => { // login
   recordStat();
   console.log('Tracking started!');
   guild = bot.guilds.get('272461413572935680');
+});
+
+bot.on('presenceUpdate', (oldMember, newMember) => {
+  console.log(`${oldMember.user.username} dans ${getGame(oldMember)} vers ${getGame(newMember)}`);
 });
 
 bot.on('message', message => {
