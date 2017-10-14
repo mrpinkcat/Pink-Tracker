@@ -99,7 +99,6 @@ function getTotalMessage(userID) {
 }
 
 function getGame(guildMember) {
-  console.log(`log : ${guildMember.user.username}`);
   if (!guildMember.presence.game)
     return null;
   else
@@ -119,8 +118,34 @@ bot.on('ready', () => { // login
   guild = bot.guilds.get('272461413572935680');
 });
 
+bot.on('userUpdate', (oldUser, newUser) => {
+  if (!newUser.bot) {
+    if (oldUser.avatarURL != newUser.avatarURL) {
+      console.log(`${newUser.username} change their avatar for ${newUser.displayAvatarURL} (${oldUser.displayAvatarURL} to ${newUser.displayAvatarURL})`);
+    }
+    if (oldUser.username != newUser.username) {
+      console.log(`${oldUser.username} change their username for ${newUser.username}`);
+    }
+  }
+});
+
 bot.on('presenceUpdate', (oldMember, newMember) => {
-  console.log(`${oldMember.user.username} dans ${getGame(oldMember)} vers ${getGame(newMember)}`);
+  if (!newMember.user.bot) {
+    if (oldMember.presence.status != newMember.presence.status) {
+      console.log(`${newMember.user.username} is now ${newMember.presence.status} (${oldMember.presence.status} => ${newMember.presence.status})`);
+    }
+    if (getGame(oldMember) != getGame(newMember)) { // Détection de jeux
+      if (!getGame(oldMember)) {
+        console.log(`${newMember.user.username} now playing ${getGame(newMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+      }
+      if (!getGame(newMember)) {
+        console.log(`${newMember.user.username} stopped playing ${getGame(oldMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+      }
+      if (getGame(oldMember) && getGame(newMember)) {
+        console.log(`${newMember.user.username} changes his game for ${getGame(newMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+      }
+    }
+  }
 });
 
 bot.on('message', message => {
