@@ -105,6 +105,13 @@ function getGame(guildMember) {
     return guildMember.presence.game.name;
 }
 
+function voiceChannelName(voiceChannel) {
+  if (voiceChannel.name)
+    return voiceChannel.name;
+  else
+    return undefined;
+}
+
 var guild;
 
 if (botPrefix.length !== 1) {
@@ -144,6 +151,38 @@ bot.on('presenceUpdate', (oldMember, newMember) => {
       if (getGame(oldMember) && getGame(newMember)) {
         console.log(`${newMember.user.username} changes his game for ${getGame(newMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
       }
+    }
+  }
+});
+
+bot.on('voiceStateUpdate', (oldMember, newMember) => {
+  if (!newMember.user.bot) {
+    if (oldMember.selfDeaf != newMember.selfDeaf) { // mute et deaf par user
+      if (newMember.selfDeaf)
+      console.log(`${newMember.user.username} deaf himself`);
+      if (!newMember.selfDeaf)
+      console.log(`${newMember.user.username} un-deaf himself`);
+    }
+    if (oldMember.selfMute != newMember.selfMute && oldMember.selfDeaf === newMember.selfDeaf) {
+      if (newMember.selfMute)
+      console.log(`${newMember.user.username} mute himself`);
+      if (!newMember.selfMute)
+      console.log(`${newMember.user.username} un-mute himself`);
+    }
+    if (oldMember.serverDeaf != newMember.serverDeaf) { // mute et deaf par serveur
+      if (newMember.serverDeaf)
+      console.log(`${newMember.user.username} became deaf by the server`);
+      if (!newMember.serverDeaf)
+      console.log(`${newMember.user.username} became un-deaf by the server`);
+    }
+    if (oldMember.serverMute != newMember.serverMute) {
+      if (newMember.serverMute)
+      console.log(`${newMember.user.username} became mute by the server`);
+      if (!newMember.serverMute)
+      console.log(`${newMember.user.username} became un-mute by the server`);
+    }
+    if (voiceChannelName(oldMember.voiceChannel) != voiceChannelName(newMember.voiceChannel)) {
+      console.log(`${oldMember.voiceChannel.name} => ${newMember.voiceChannel.name}`);
     }
   }
 });
