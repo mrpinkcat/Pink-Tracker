@@ -223,6 +223,9 @@ bot.on('message', message => {
       console.log('Réponse du bot SUPPRIMÉE');
     }, deleteTimeout * 1000);
   }
+  if (message.channel.id === logChannelId && !message.author.bot) {
+    message.delete();
+  }
 });
 
 /* ------------------
