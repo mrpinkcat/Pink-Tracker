@@ -5,7 +5,10 @@ JsonDB = require('node-json-db'),
 db = new JsonDB('db', true, true),
 app = require('express')(),
 server = require('http').createServer(app),
-io = require('socket.io')(server);
+io = require('socket.io')(server),
+moment = require('moment');
+moment.locale('fr');
+moment().format();
 
 bot.login(process.env._DISCORDTOKEN);
 
@@ -114,7 +117,7 @@ function voiceChannelName(voiceChannel) {
 }
 
 function log(msg) {
-  bot.channels.get(logChannelId).send(msg);
+  bot.channels.get(logChannelId).send(`[${moment().format('LTS')}] ${msg}`);
 }
 
 var guild;

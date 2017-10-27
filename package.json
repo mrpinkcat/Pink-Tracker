@@ -10,10 +10,17 @@
   "author": "Mr. Pink",
   "license": "ISC",
   "dependencies": {
+    "bufferutil": "^3.0.2",
     "discord.js": "^11.2.1",
     "express": "^4.15.4",
     "http": "0.0.0",
+    "moment": "^2.19.1",
     "node-json-db": "^0.7.3",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.3",
+    "vue": "^2.4.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrpinkcat/Pink-Tracker.git"
   }
 }
