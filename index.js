@@ -12,6 +12,7 @@ bot.login(process.env._DISCORDTOKEN);
 const correctChannelName = 'nas_is_back',
 correctChannelId = '272461413572935680',
 afkChannelId = '272705379316662272',
+logChannelId = '358936696475090945',
 botPrefix = '!',
 deleteTimeout = 5, // en sec
 loopTime = 5; // en min
@@ -106,10 +107,14 @@ function getGame(guildMember) {
 }
 
 function voiceChannelName(voiceChannel) {
-  if (voiceChannel.name)
-    return voiceChannel.name;
-  else
+  if (!voiceChannel)
     return undefined;
+  else
+    return voiceChannel.name;
+}
+
+function log(msg) {
+  bot.channels.get(logChannelId).send(msg);
 }
 
 var guild;
@@ -127,29 +132,29 @@ bot.on('ready', () => { // login
 
 bot.on('userUpdate', (oldUser, newUser) => {
   if (!newUser.bot) {
-    if (oldUser.avatarURL != newUser.avatarURL) {
-      console.log(`${newUser.username} change their avatar for ${newUser.displayAvatarURL} (${oldUser.displayAvatarURL} to ${newUser.displayAvatarURL})`);
+    if (oldUser.avatarURL != newUser.avatarURL) { // Détection de changement d'avatar
+      log(`<@${newUser.id}> **change their avatar** for **${newUser.displayAvatarURL}**\n*${oldUser.displayAvatarURL} ⇒ ${newUser.displayAvatarURL}*`);
     }
-    if (oldUser.username != newUser.username) {
-      console.log(`${oldUser.username} change their username for ${newUser.username}`);
+    if (oldUser.username != newUser.username) { // Détection de changement de nom d'utlilisateur
+      log(`<@${newUser.id}> **change their username** for **${newUser.username}**\n*${oldUser.username} ⇒ ${newUser.username}*`);
     }
   }
 });
 
 bot.on('presenceUpdate', (oldMember, newMember) => {
   if (!newMember.user.bot) {
-    if (oldMember.presence.status != newMember.presence.status) {
-      console.log(`${newMember.user.username} is now ${newMember.presence.status} (${oldMember.presence.status} => ${newMember.presence.status})`);
+    if (oldMember.presence.status != newMember.presence.status) { // Détection de status
+      log(`<@${newMember.id}> is now **${newMember.presence.status}**\n*${oldMember.presence.status} ⇒ ${newMember.presence.status}*`);
     }
     if (getGame(oldMember) != getGame(newMember)) { // Détection de jeux
       if (!getGame(oldMember)) {
-        console.log(`${newMember.user.username} now playing ${getGame(newMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+        log(`<@${newMember.id}> now playing ${getGame(newMember)}`);
       }
       if (!getGame(newMember)) {
-        console.log(`${newMember.user.username} stopped playing ${getGame(oldMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+        log(`<@${newMember.id}> stopped playing ${getGame(oldMember)}`);
       }
       if (getGame(oldMember) && getGame(newMember)) {
-        console.log(`${newMember.user.username} changes his game for ${getGame(newMember)} (${getGame(oldMember)} => ${getGame(newMember)})`);
+        log(`<@${newMember.id}> changes his game for **${getGame(newMember)}**\n*${getGame(oldMember)} => ${getGame(newMember)}*`);
       }
     }
   }
@@ -159,30 +164,36 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
   if (!newMember.user.bot) {
     if (oldMember.selfDeaf != newMember.selfDeaf) { // mute et deaf par user
       if (newMember.selfDeaf)
-      console.log(`${newMember.user.username} deaf himself`);
+      log(`<@${newMember.id}> **deaf** himself`);
       if (!newMember.selfDeaf)
-      console.log(`${newMember.user.username} un-deaf himself`);
+      log(`<@${newMember.id}> **un-deaf** himself`);
     }
     if (oldMember.selfMute != newMember.selfMute && oldMember.selfDeaf === newMember.selfDeaf) {
       if (newMember.selfMute)
-      console.log(`${newMember.user.username} mute himself`);
+      log(`<@${newMember.id}> **mute** himself`);
       if (!newMember.selfMute)
-      console.log(`${newMember.user.username} un-mute himself`);
+      log(`<@${newMember.id}> **un-mute** himself`);
     }
     if (oldMember.serverDeaf != newMember.serverDeaf) { // mute et deaf par serveur
       if (newMember.serverDeaf)
-      console.log(`${newMember.user.username} became deaf by the server`);
+      log(`<@${newMember.id}> became **deaf by the server**`);
       if (!newMember.serverDeaf)
-      console.log(`${newMember.user.username} became un-deaf by the server`);
+      log(`<@${newMember.id}> became **un-deaf by the server**`);
     }
     if (oldMember.serverMute != newMember.serverMute) {
       if (newMember.serverMute)
-      console.log(`${newMember.user.username} became mute by the server`);
+      log(`<@${newMember.id}> became **mute by the server**`);
       if (!newMember.serverMute)
-      console.log(`${newMember.user.username} became un-mute by the server`);
+      log(`<@${newMember.id}> became **un-mute by the server**`);
     }
-    if (voiceChannelName(oldMember.voiceChannel) != voiceChannelName(newMember.voiceChannel)) {
-      console.log(`${oldMember.voiceChannel.name} => ${newMember.voiceChannel.name}`);
+    if (voiceChannelName(oldMember.voiceChannel) != voiceChannelName(newMember.voiceChannel)) { // detection de channel
+      if (!voiceChannelName(oldMember.voiceChannel) && voiceChannelName(newMember.voiceChannel)) {
+        log(`<@${newMember.id}> **join ${voiceChannelName(newMember.voiceChannel)}**`);
+      } else if (voiceChannelName(oldMember.voiceChannel) && !voiceChannelName(newMember.voiceChannel)) {
+        log(`<@${newMember.id}> **leave ${voiceChannelName(oldMember.voiceChannel)}**`);
+      } else {
+        log(`<@${newMember.id}> **switch** to **${voiceChannelName(newMember.voiceChannel)}**\n*${voiceChannelName(oldMember.voiceChannel)} ⇒ ${voiceChannelName(newMember.voiceChannel)}*`);
+      }
     }
   }
 });
@@ -203,7 +214,7 @@ bot.on('message', message => {
       console.log(`${message.content} (${message.author.username}) SUPPRIMÉ`);
     }, deleteTimeout * 1000);
   }
-  if (message.channel.type === 'text' && message.channel.name !== correctChannelName && message.author.id === bot.user.id && message.content[0] !== botPrefix) { // auto supr du message du bot
+  if (message.channel.type === 'text' && message.channel.name !== correctChannelName && message.channel.id !== logChannelId && message.author.id === bot.user.id && message.content[0] !== botPrefix) { // auto supr du message du bot
     console.log(`La réponse du bot serra supprimé dans ${deleteTimeout}s`);
     setTimeout(function () {
       message.delete();
