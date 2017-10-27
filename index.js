@@ -210,8 +210,7 @@ bot.on('message', message => {
     console.log(`fail de ${message.author.username} avec le message : ${message.content}`);
     console.log(`${message.content} (${message.author.username}) serra supprimé dans ${deleteTimeout}s`);
 
-    message.reply('**tu fous quoi ?!** On est pas chez mémé là ! Mais comme je suis gentil, j\'ai transféré ton message au bot... Que ça ne se reproduise pas !');
-    bot.channels.get(correctChannelId).send(message.content); // Revois le message dans le channel du bot
+    message.reply('**tu fous quoi ?!** On est pas chez mémé là ! J\'ai supprimé ton message... Que ça ne se reproduise pas !');
     setTimeout(function () { // supprime le message du user
       message.delete();
       console.log(`${message.content} (${message.author.username}) SUPPRIMÉ`);
