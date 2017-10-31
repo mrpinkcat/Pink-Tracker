@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 -------DISCORD-------
 ------------------ */
 
-function dbTryCatch(path) { // fait un try catch dans la db pour voir si le dir existe
+const dbTryCatch = path => { // fait un try catch dans la db pour voir si le dir existe
   try {
     var temp = db.getData(path);
   }
@@ -44,16 +44,16 @@ function dbTryCatch(path) { // fait un try catch dans la db pour voir si le dir 
     return false;
   }
   return true;
-}
+};
 
-function additionDb(path, value) {
+const additionDb = (path, value) => {
   if (dbTryCatch(path))
   return db.getData(path) + value;
   else
   return value;
-}
+};
 
-function recordStat() {
+const recordStat = () => {
   var loop = setInterval(function () { // loop qui va envoyer les info de la guild
     for (let member of guild.members.values()) { // for of
       if (!member.user.bot) {// si le user n'est pas un bot
@@ -72,9 +72,9 @@ function recordStat() {
   }
   console.log('loop OK');
 }, loopTime * 60 * 1000);
-}
+};
 
-function calcStat(info) {
+const calcStat = info => {
   let toPush = {
     id : info.id,
     username: info.username,
@@ -86,39 +86,39 @@ function calcStat(info) {
   };
   db.push(`/${info.id}`, toPush);
   info.game ? db.push(`/${info.id}/time/game/${info.game}`, additionDb(`/${info.id}/time/game/${info.game}`, loopTime)) : `no game for ${info.username}`;
-}
+};
 
-function addMessageToStat(userID, chanelID) {
+const addMessageToStat = (userID, chanelID) => {
   db.push(`/${userID}/message/${chanelID}`, additionDb(`/${userID}/message/${chanelID}`, 1));
   db.push(`/${userID}/message/all`, getTotalMessage(userID));
-}
+};
 
-function getTotalMessage(userID) {
+const getTotalMessage = userID => {
   let totalMessages = 0;
   for (let [index, value] of Object.entries(db.getData(`/${userID}/message`))) {
     if (index !== 'all')
     totalMessages = totalMessages + value;
   }
   return totalMessages;
-}
+};
 
-function getGame(guildMember) {
+const getGame = guildMember => {
   if (!guildMember.presence.game)
     return null;
   else
     return guildMember.presence.game.name;
-}
+};
 
-function voiceChannelName(voiceChannel) {
+const voiceChannelName = voiceChannel=> {
   if (!voiceChannel)
     return undefined;
   else
     return voiceChannel.name;
-}
+};
 
-function log(msg) {
+const log = msg => {
   bot.channels.get(logChannelId).send(`[${moment().format('LTS')}] ${msg}`);
-}
+};
 
 var guild;
 
@@ -232,13 +232,13 @@ bot.on('message', message => {
 ---------WEB---------
 ------------------ */
 
-io.on('connection', function(socket) {
+io.on('connection', socket => {
   console.log(`${socket.id} is connected`);
   socket.on('need_stats', function() {
     socket.emit('stats', db.getData('/'));
   });
 });
 
-function channelIDToName(channelID) {
+const channelIDToName = channelID => {
   return guild.channels.get(channelID).name;
-}
+};
