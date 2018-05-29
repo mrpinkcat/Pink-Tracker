@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "outDir": "./dist",
+    "types": ["node"],
+    "lib": ["es6", "es2017.object"],
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

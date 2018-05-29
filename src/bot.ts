@@ -1,32 +1,27 @@
-const express = require('express'),
-Discord = require('discord.js'),
-bot = new Discord.Client(),
-JsonDB = require('node-json-db'),
-db = new JsonDB('db', true, true),
-app = require('express')(),
-server = require('http').createServer(app),
-io = require('socket.io')(server),
-moment = require('moment');
+import * as Discord from 'discord.js';
+import * as moment from 'moment';
+const JsonDB = require('node-json-db');
+
+const bot = new Discord.Client();
+
+const db = new JsonDB('db', true, true);
+
 moment.locale('fr');
-moment().format();
 
-bot.login(process.env._DISCORDTOKEN);
+bot.login('MzU4NjgwNjU0OTk4OTI5NDE4.De7Fqw.yiHlWAqOaJ8ta_t_KGG3ruylNLA');
+const correctChannelName: string = 'pink_host';
+const correctChannelId: string = '272461413572935680';
+const afkChannelId: string = '272705379316662272';
+const logChannelId: string = '450234157684228096';
+const logChannel: any = bot.channels.get(logChannelId);
+const botPrefix: string = '$';
+const deleteTimeout: number = 5; // en sec
+const loopTime: number = 5; // en min
+let guild: any;
 
-const correctChannelName = 'nas_is_back',
-correctChannelId = '272461413572935680',
-afkChannelId = '272705379316662272',
-logChannelId = '358936696475090945',
-botPrefix = '!',
-deleteTimeout = 5, // en sec
-loopTime = 5; // en min
-
-/* ------------------
--------DISCORD-------
------------------- */
-
-const dbTryCatch = path => { // fait un try catch dans la db pour voir si le dir existe
+const dbTryCatch = (path: string): boolean => { // fait un try catch dans la db pour voir si le dir existe
   try {
-    var temp = db.getData(path);
+    let temp = db.getData(path);
   }
   catch (err) {
     return false;
@@ -34,35 +29,14 @@ const dbTryCatch = path => { // fait un try catch dans la db pour voir si le dir
   return true;
 };
 
-const additionDb = (path, value) => {
+const additionDb = (path: string, value: number): number => {
   if (dbTryCatch(path))
-  return db.getData(path) + value;
+    return db.getData(path) + value;
   else
-  return value;
+    return value;
 };
 
-const recordStat = () => {
-  var loop = setInterval(function () { // loop qui va envoyer les info de la guild
-    for (let member of guild.members.values()) { // for of
-      if (!member.user.bot) {// si le user n'est pas un bot
-
-      var info = {
-        id : member.user.id,
-        username : member.user.username,
-        avatarURL : member.user.avatarURL,
-        online : member.user.presence.status === 'online' ? true : false,
-        talk : (member.voiceChannelID && member.voiceChannelID !== afkChannelId) ? true : false,
-        game : member.user.presence.game !== null ? member.user.presence.game.name : false
-      };
-
-      calcStat(info);
-    }
-  }
-  console.log('loop OK');
-}, loopTime * 60 * 1000);
-};
-
-const calcStat = info => {
+const calcStat = (info: any): void => {
   let toPush = {
     id : info.id,
     username: info.username,
@@ -76,39 +50,49 @@ const calcStat = info => {
   info.game ? db.push(`/${info.id}/time/game/${info.game}`, additionDb(`/${info.id}/time/game/${info.game}`, loopTime)) : `no game for ${info.username}`;
 };
 
-const addMessageToStat = (userID, chanelID) => {
+const addMessageToStat = (userID: string, chanelID: string): void => {
   db.push(`/${userID}/message/${chanelID}`, additionDb(`/${userID}/message/${chanelID}`, 1));
-  db.push(`/${userID}/message/all`, getTotalMessage(userID));
 };
 
-const getTotalMessage = userID => {
-  let totalMessages = 0;
-  for (let [index, value] of Object.entries(db.getData(`/${userID}/message`))) {
-    if (index !== 'all')
-    totalMessages = totalMessages + value;
-  }
-  return totalMessages;
+const recordStat = (): void => {
+  const loop = setInterval(function () { // loop qui va envoyer les info de la guild
+    for (let member of guild.members.values()) { // for of
+      if (!member.user.bot) {// si le user n'est pas un bot
+
+        const info = {
+          id : member.user.id,
+          username : member.user.username,
+          avatarURL : member.user.avatarURL,
+          online : member.user.presence.status === 'online' ? true : false,
+          talk : (member.voiceChannelID && member.voiceChannelID !== afkChannelId) ? true : false,
+          game : member.user.presence.game !== null ? member.user.presence.game.name : false
+        };
+
+        calcStat(info);
+      }
+    }
+    console.log('loop OK');
+  }, loopTime * 60 * 1000);
 };
 
-const getGame = guildMember => {
+const getGame = (guildMember: any): null | string => {
   if (!guildMember.presence.game)
     return null;
   else
     return guildMember.presence.game.name;
 };
 
-const voiceChannelName = voiceChannel=> {
+const voiceChannelName = (voiceChannel: any): undefined | string => {
   if (!voiceChannel)
     return undefined;
   else
     return voiceChannel.name;
 };
 
-const log = msg => {
+const log = (msg: string): void => {
+  // @ts-ignore: Property 'send' does not exist on type 'Channel'
   bot.channels.get(logChannelId).send(`[${moment().format('LTS')}] ${msg}`);
 };
-
-var guild;
 
 if (botPrefix.length !== 1) {
   console.error('ERROR Votre prefix ne fait pas 1 caractère !');
@@ -119,6 +103,7 @@ bot.on('ready', () => { // login
   recordStat();
   console.log('Tracking started!');
   guild = bot.guilds.get('272461413572935680');
+  log('Bonjour !');
 });
 
 bot.on('userUpdate', (oldUser, newUser) => {
@@ -193,8 +178,7 @@ bot.on('message', message => {
   if (message.channel.type === 'text' && !message.author.bot) {
     addMessageToStat(message.author.id, message.channel.id);
   }
-
-  if (message.channel.type === 'text' && message.channel.name !== correctChannelName && message.content[0] === botPrefix && message.author.id !== bot.user.id) { //surveillance des channels (sauf le bon)
+  if (message.channel.type === 'text' && message.channel.id !== correctChannelId && message.content[0] === botPrefix && message.author.id !== bot.user.id) { //surveillance des channels (sauf le bon)
     console.log(`fail de ${message.author.username} avec le message : ${message.content}`);
     console.log(`${message.content} (${message.author.username}) serra supprimé dans ${deleteTimeout}s`);
 
@@ -204,7 +188,7 @@ bot.on('message', message => {
       console.log(`${message.content} (${message.author.username}) SUPPRIMÉ`);
     }, deleteTimeout * 1000);
   }
-  if (message.channel.type === 'text' && message.channel.name !== correctChannelName && message.channel.id !== logChannelId && message.author.id === bot.user.id && message.content[0] !== botPrefix) { // auto supr du message du bot
+  if (message.channel.type === 'text' && message.channel.id !== correctChannelId && message.channel.id !== logChannelId && message.author.id === bot.user.id && message.content[0] !== botPrefix) { // auto supr du message du bot
     console.log(`La réponse du bot serra supprimé dans ${deleteTimeout}s`);
     setTimeout(function () {
       message.delete();
@@ -216,6 +200,8 @@ bot.on('message', message => {
   }
 });
 
-const channelIDToName = channelID => {
+const channelIDToName = (channelID: string): string => {
   return guild.channels.get(channelID).name;
 };
+
+export * from './bot';
