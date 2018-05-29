@@ -20,18 +20,6 @@ botPrefix = '!',
 deleteTimeout = 5, // en sec
 loopTime = 5; // en min
 
-server.listen(process.env._PORT, function() {
-  console.log('Web server up on :' + process.env._PORT);
-});
-
-app.use('/', express.static(__dirname + '/web/'));
-
-app.get('/', (req, res) => {
-  res.sendFile('web/index.html', {
-    root: __dirname
-  });
-});
-
 /* ------------------
 -------DISCORD-------
 ------------------ */
@@ -226,17 +214,6 @@ bot.on('message', message => {
   if (message.channel.id === logChannelId && !message.author.bot) {
     message.delete();
   }
-});
-
-/* ------------------
----------WEB---------
------------------- */
-
-io.on('connection', socket => {
-  console.log(`${socket.id} is connected`);
-  socket.on('need_stats', function() {
-    socket.emit('stats', db.getData('/'));
-  });
 });
 
 const channelIDToName = channelID => {
