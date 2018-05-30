@@ -8,7 +8,7 @@ const db = new JsonDB('db', true, true);
 
 moment.locale('fr');
 
-bot.login('MzU4NjgwNjU0OTk4OTI5NDE4.De7Fqw.yiHlWAqOaJ8ta_t_KGG3ruylNLA');
+bot.login(process.env.TOKEN);
 const correctChannelName: string = 'pink_host';
 const correctChannelId: string = '272461413572935680';
 const afkChannelId: string = '272705379316662272';
